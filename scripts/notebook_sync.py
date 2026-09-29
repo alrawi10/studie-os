@@ -103,7 +103,11 @@ def synk_fag(fag, info, cfg, dry_run):
             print(f"  (ville oprette notebook '{info['notebook_titel']}')")
         else:
             info["notebook_id"] = find_id(nlm_json("notebook", "create", info["notebook_titel"]))
-            (ROD / "config" / "fag.json").write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+            # genindlæs før skrivning, så parallelle kørsler (--fag) ikke overskriver hinandens id'er
+            cfg_sti = ROD / "config" / "fag.json"
+            frisk = json.loads(cfg_sti.read_text())
+            frisk["fag"][fag]["notebook_id"] = info["notebook_id"]
+            cfg_sti.write_text(json.dumps(frisk, indent=2, ensure_ascii=False) + "\n")
             print(f"  oprettede notebook '{info['notebook_titel']}' ({info['notebook_id']})")
     if info.get("notebook_id"):
         kilder_nb = nlm_json("source", "list", info["notebook_id"])
