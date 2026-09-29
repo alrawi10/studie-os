@@ -1,0 +1,26 @@
+# Hemmeligheder
+.env
+.env.*
+!.env.example
+
+# Undervisningsmateriale (ophavsret) og personlige data
+fag/
+kilder/
+*.pdf
+*.pptx
+*.docx
+planlaegning/
+config/fag.json
+config/planlaegning.json
+CLAUDE.md
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Cache og build
+__pycache__/
+*.pyc
+.venv/
+.cache/
+*.log
+*.part
+.DS_Store

@@ -1,0 +1,25 @@
+{
+  "dag_start": "08:00",
+  "dag_slut": "20:00",
+  "fri_dage": [],
+  "horisont_dage": 7,
+  "bloklaengde_min": 90,
+  "pause_min": 15,
+  "min_blok_min": 30,
+  "max_studie_min_pr_dag": 360,
+  "anki_min_dagligt": 30,
+  "buffer_omkring_optaget_min": 15,
+  "kalendere": {
+    "Universitetsskema": "kun_klinik_og_obligatorisk",
+    "Arbejde": "optaget",
+    "Privat": "optaget"
+  },
+  "ku_optaget_hvis_indeholder": [
+    "klinik",
+    "clinical practice",
+    "obligator",
+    "eksamen",
+    "exam"
+  ],
+  "studiekalender": "Studieplan"
+}

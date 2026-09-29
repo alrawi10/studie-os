@@ -1,0 +1,12 @@
+{
+  "semester": "E26",
+  "fag": {
+    "Cariologi": {
+      "kursus_id": 12345,
+      "kursusnavn": "Cariologisk grundkursus",
+      "notebook_id": null,
+      "notebook_titel": "Odontologi – Cariologi",
+      "anki_deck": "Odontologi::Cariologi"
+    }
+  }
+}
