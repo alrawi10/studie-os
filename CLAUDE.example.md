@@ -36,6 +36,7 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   ├── absalon_sync.py    # henter nye/ændrede PDF/PPTX/DOCX fra Files + Modules
 │   ├── notebook_sync.py   # uploader nye filer til fagets notebook (opretter notebook ved behov)
 │   ├── deadlines.py       # kommende deadlines fra Absalon
+│   ├── billede.py         # figur fra citeret side/slide → Anki (bruges af anki-kort)
 │   └── canvas_mcp.sh      # starter Canvas MCP med .env
 └── .claude/skills/        # anki-kort, eksamenssvar, fejlanalyse
 ```

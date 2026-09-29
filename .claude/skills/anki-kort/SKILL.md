@@ -35,10 +35,26 @@ Læs altid `config/kortregler.md` først. Reglerne dér er bindende.
 5. **Kvalitetstjek.** Hvert kort skal pege på et konkret citat fra trin 2.
    Kort uden kildebelæg oprettes **ikke**. De vises i en separat liste "Ubekræftet".
    Tjek også: ingen ja/nej, ingen multiple choice, svaret står ikke i spørgsmålet, én ting pr. kort.
+5b. **Billeder** til kort om noget visuelt (histologi, røntgen, kliniske fotos, anatomi, klassifikationsfigurer,
+   flowdiagrammer). Brug den citerede kilde og side/slide:
+   ```bash
+   uv run -q --python 3.12 --with pymupdf --with python-pptx --with pillow --with requests \
+     scripts/billede.py --fag <Fag> --kilde "<kildetitel>" --side <nr> --figur 1
+   ```
+   (`--figur N` beskærer automatisk til figur N på en PDF-side; `--beskaer x0,y0,x1,y1` beskærer manuelt;
+   PPTX giver det største billede på sliden, `--nr 2` det næststørste.)
+   **Se altid selv på PNG'en** (Read på filstien), før den bruges. Den skal vise det, kortet spørger om,
+   og svaret må ikke stå skrevet i billedet på forsiden. Et billede må kun på et kort, når det støtter
+   netop det faktum. Tilføj ikke billeder til rene definitionskort.
+   Når kortet er godkendt: kør igen med `--anki`, og sæt den udskrevne `<img src="…">` i feltet `Billede`
+   (vises på bagsiden). Til genkendelse af mange strukturer på én figur: foreslå brugeren
+   Ankis indbyggede Image Occlusion, og giv stien til PNG'en.
 6. **Vis en tabel** til godkendelse:
 
-   | # | Type | Forside / Tekst | Bagside | Kilde | Tags |
-   |---|---|---|---|---|---|
+   | # | Type | Forside / Tekst | Bagside | Billede | Kilde | Tags |
+   |---|---|---|---|---|---|---|
+
+   I kolonnen Billede: kort beskrivelse af figuren eller "–".
 
    Opret først, når brugeren skriver **ok** (eller rettelser → opdatér tabellen).
    Hvis brugeren har skrevet **"direkte"** i sin anmodning, må kortene oprettes uden godkendelse.
@@ -49,5 +65,6 @@ Læs altid `config/kortregler.md` først. Reglerne dér er bindende.
 ## Feltformat
 - `Kilde`: `<notebook_titel> · <kildetitel> · s./slide <nr>`
 - `Uddybning`: 1–4 sætninger om mekanisme/kontekst. Må gerne indeholde det ordrette citat i kursiv.
-- `Billede`: tom, medmindre brugeren leverer et billede (så `store_media_file` og `<img src="…">`).
+- `Billede`: `<img src="odont_….png">` fra `scripts/billede.py --anki` (trin 5b) eller et billede, brugeren leverer
+  (`store_media_file`). Ellers tomt.
 - Cloze: `{{c1::…}}`. Brug flere huller (c1, c2 …) i samme note til sekvenser i stedet for én lang liste.
