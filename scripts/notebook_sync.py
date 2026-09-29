@@ -3,12 +3,12 @@
 
 - Opretter notebook'en, hvis config/fag.json ikke har et notebook_id endnu (og gemmer id'et).
 - Springer filer over, der allerede ligger i notebook'en (sammenligning på normaliseret filnavn).
-- Filer over 200 MB: PPTX/DOCX uploades som udtrukket tekst med slide-markører; store PDF'er springes over.
+- Filer over 200 MB uploades som udtrukket tekst med side-/slide-markører (billed-PDF’er uden tekst springes over).
 - Holder sig under MAKS_KILDER; ved for mange prioriteres forelæsninger/slides og pensumlitteratur.
 - Skriver source-id tilbage i manifestet, så næste kørsel kun uploader nyt.
 
 Brug:
-    uv run --with python-pptx --with python-docx scripts/notebook_sync.py [--fag KOF] [--dry-run]
+    uv run --with python-pptx --with python-docx --with pymupdf scripts/notebook_sync.py [--fag KOF] [--dry-run]
 """
 import argparse
 import json
@@ -87,6 +87,13 @@ def tekst_fra_fil(sti):
     if sti.suffix.lower() == ".docx":
         from docx import Document
         return "\n".join(p.text for p in Document(sti).paragraphs)
+    if sti.suffix.lower() == ".pdf":
+        import pymupdf
+        with pymupdf.open(sti) as doc:
+            sider = [side.get_text() for side in doc]
+        if sum(len(s.split()) for s in sider) < 20:  # ren billed-PDF uden tekstlag
+            return None
+        return "\n\n".join(f"--- Side {i} ---\n{s}" for i, s in enumerate(sider, 1))
     return None
 
 

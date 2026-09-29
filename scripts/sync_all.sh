@@ -13,4 +13,4 @@ if ! nlm login --check >/dev/null 2>&1; then
   echo "NotebookLM-login er udløbet – kør 'nlm login' og derefter scripts/sync_all.sh igen." >&2
   exit 1
 fi
-uv run -q --python 3.12 --with python-pptx --with python-docx scripts/notebook_sync.py "$@"
+uv run -q --python 3.12 --with python-pptx --with python-docx --with pymupdf scripts/notebook_sync.py "$@"

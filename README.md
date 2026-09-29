@@ -23,6 +23,7 @@ Apple Kalender ◀──planlæg── Claude Code ◀────────�
 | `sync` | Henter nye/ændrede filer fra Canvas og uploader dem til fagets notebook |
 | `deadlines` | Afleveringer og quizzer de næste 14 dage |
 | `jeg skal nå …` / `planlæg` | Motion-lignende planlægning af læseblokke i Apple Kalender |
+| `indbakke` | Behandler det, du har dikteret til Siri (*"tilføj 'har læst paro F4' til Studie"*): kort, opgaver og omplanlægning |
 
 Alle Anki-kort følger [`config/kortregler.md`](config/kortregler.md): ét faktum pr. kort, cloze til definitioner og tal, basic til hvorfor/hvordan, og altid en kildehenvisning. Kort uden belæg i pensum oprettes ikke. Kort om noget visuelt (histologi, røntgen, kliniske fotos) får automatisk den citerede figur fra pensum med.
 
@@ -35,6 +36,8 @@ scripts/
   notebook_sync.py     kilder → NotebookLM (opretter notebooks, undgår dubletter, store PPTX som tekst)
   sync_all.sh          begge ovenstående
   deadlines.py         kommende deadlines fra Canvas
+  indbakke.py          Påmindelser-liste "Studie" som indbakke (Siri-diktat), tjekkes ved session-start
+  tilfoej_bog.py       lærebog → notebook (tekst med sidemarkører, deles over ~350.000 ord)
   billede.py           figur fra citeret PDF-side/PPTX-slide → Anki-kortets Billede-felt
   kalender.py          planlægger (Apple Kalender via AppleScript)
   install_planner.sh   kør planlæggeren automatisk hver 30. min (launchd)

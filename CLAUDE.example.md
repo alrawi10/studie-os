@@ -36,6 +36,7 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   ├── absalon_sync.py    # henter nye/ændrede PDF/PPTX/DOCX fra Files + Modules
 │   ├── notebook_sync.py   # uploader nye filer til fagets notebook (opretter notebook ved behov)
 │   ├── deadlines.py       # kommende deadlines fra Absalon
+│   ├── indbakke.py        # Påmindelser-indbakke (Siri-diktat)
 │   ├── billede.py         # figur fra citeret side/slide → Anki (bruges af anki-kort)
 │   └── canvas_mcp.sh      # starter Canvas MCP med .env
 └── .claude/skills/        # anki-kort, eksamenssvar, fejlanalyse
@@ -69,6 +70,19 @@ andre kalendere der er optaget tid. Læseblokke lægges kun i kalenderen "Studie
 | "nåede ikke X" | Læg de mistede minutter til opgavens `rest_minutter`, og planlæg igen |
 | "færdig med X" | Sæt status "faerdig", og planlæg igen |
 Rammer (arbejdstid, bloklængde, Anki-tid, fridage) står i `config/planlaegning.json`.
+
+### Indbakke (Siri → Påmindelser › "Studie")
+Jeg dikterer på farten: *"Hey Siri, tilføj 'har læst paro F4' til Studie"*. Ved session-start vises antal ubehandlede punkter.
+`indbakke` → `python3 scripts/indbakke.py hent` (JSON), tolk hvert punkt, og vis en kort plan, før du handler:
+| Punktet betyder | Handling |
+|---|---|
+| har læst / er færdig med at læse X | `læst`-workflow (skill `anki-kort`) – ét emne ad gangen |
+| skal nå / skal lave / husk X (evt. deadline, tid) | ny opgave i `planlaegning/opgaver.json` (estimér tid hvis ikke nævnt) |
+| nåede ikke X | læg minutter tilbage på opgaven |
+| færdig med opgave X | status "faerdig" |
+| spørgsmål / "forklar …" | besvar ud fra pensum (NotebookLM) |
+Kør derefter `planlæg --skriv`, hvis opgaver ændrede sig, og afkryds de behandlede punkter med
+`python3 scripts/indbakke.py afslut <id> …`. Uklare punkter: spørg, og lad dem stå. Slet aldrig punkter.
 
 Python-scripts køres altid med `uv run -q --python 3.12 --with <pakker> scripts/<script>.py`
 (systemets python3 er 3.9).
