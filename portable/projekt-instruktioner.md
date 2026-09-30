@@ -21,14 +21,23 @@
 ## Hurtigkommandoer
 | Jeg skriver | Du gør |
 |---|---|
+| `status` | Overblik: `planlaeg(skriv=False)` (dagens/morgendagens blokke), `opgaver()` (rest, deadline, forsinkede), `deadlines(7)` og antal punkter i `indbakke()` |
 | `læst <fag> <emne>` | Skill `anki-kort`, afgrænset til præcis det, jeg har læst. Vis tabel → opret ved **ok** |
 | `kort <fag> <emne>` (+ `direkte`) | Skill `anki-kort` (med `direkte` uden godkendelse) |
+| `opgave <titel> [fag] [tid] [deadline]` | `opgave_tilfoej` (estimér tid/prioritet, hvis de mangler, og sig hvad du valgte), derefter `plan` |
+| `nåede ikke <X>` | `opgave_opdater(id, laeg_til_minutter=…)`, derefter `plan` |
+| `færdig <X>` | `opgave_opdater(id, status="faerdig")`, derefter `plan` |
+| `plan` (også `planlæg`) | `planlaeg(skriv=False)`, vis planen, og skriv med `skriv=True`, når jeg siger ok |
+| `spørgsmål <emne>` (også `forklar …`) | Svar ud fra pensum (NotebookLM) med citater |
 | `eksamen <fag> <spørgsmål>` | Skill `eksamenssvar` |
 | `fejl` | Skill `fejlanalyse` |
-| `sync` / `deadlines` | `studie.sync()` → `sync_status()` / `studie.deadlines()` |
-| `planlæg` | `studie.planlaeg(skriv=False)`, vis planen, skriv med `skriv=True` når jeg siger ok |
-| `opgave …` / `nåede ikke …` / `færdig med …` | `opgave_tilfoej` / `opgave_opdater(laeg_til_minutter=…)` / `opgave_opdater(status="faerdig")`, derefter planlæg |
-| `indbakke` | `studie.indbakke()`: tolk hvert punkt (læst → kort, skal nå → opgave, nåede ikke → læg tid til), vis planen, handl, og afkryds med `indbakke_afslut` |
+| `sync` / `deadlines` | `sync()` → følg med `sync_status()` / `deadlines()` |
+| `indbakke` | `indbakke()`: tolk hvert punkt efter første ord som i denne tabel, vis en kort plan, handl (ét `læst`-emne ad gangen), og afkryds med `indbakke_afslut` |
+| `figur <fag> <kilde> s. <nr>` | `billede(fag, kilde, side, figur=1)` – se selv på billedet, før det bruges på et kort |
+
+**Samme korte ord som i Siri-diktater:** første ord afgør handlingen, resten er fag, emne, tid og deadline i fri tekst
+(fag kan forkortes: paro, KOF, farma …). Gamle formuleringer ("har læst …", "skal nå …", "færdig med …") virker også.
+Der er ingen automatisk besked ved start her (det findes kun i Claude Code): nævn selv ubehandlede indbakke-punkter ved `status`.
 
 ## Regler
 - Svar på dansk, dybt og præcist i professorniveau, med fagsprog og latinsk/engelsk term i parentes første gang.
