@@ -1,6 +1,6 @@
 ---
 name: eksamenssvar
-description: Bruges når der skal skrives et dybt, pensumforankret eksamenssvar, en mundtlig eksamensdisposition eller en aflevering – fx "eksamen <fag> <spørgsmål>". Svar i professorniveau med citater fra kurslitteraturen.
+description: Bruges når der skal skrives et dybt, pensumforankret eksamenssvar, en mundtlig eksamensdisposition eller en aflevering – fx "eksamen Parodontologi patogenese ved parodontitis". Svar i professorniveau med citater fra kurslitteraturen.
 ---
 
 # Eksamenssvar i professorniveau

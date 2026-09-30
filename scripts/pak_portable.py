@@ -49,6 +49,9 @@ def main():
     for skill in sorted((ROD / ".claude" / "skills").iterdir()):
         if not (skill / "SKILL.md").exists():
             continue
+        forside = (skill / "SKILL.md").read_text().split("---")[1]
+        if re.search(r"[<>]", forside):  # claude.ai afviser XML-lignende tegn i name/description
+            raise SystemExit(f"❌ {skill.name}/SKILL.md: frontmatter må ikke indeholde < eller >")
         with zipfile.ZipFile(DIST / "skills" / f"{skill.name}.zip", "w", zipfile.ZIP_DEFLATED) as z:
             for f in skill.rglob("*"):
                 if f.is_file():

@@ -1,6 +1,6 @@
 ---
 name: anki-kort
-description: Bruges når der skal laves Anki-kort ud fra pensum – fx "læst <fag> <emne>", "kort <fag> <emne>" eller "lav kort om …". Kildebelagte kort efter faste kortregler; oprettes direkte i Anki eller leveres som importfil.
+description: Bruges når der skal laves Anki-kort ud fra pensum – fx "læst KOF F2", "kort Radiologi cyster" eller "lav kort om …". Kildebelagte kort efter faste kortregler; oprettes direkte i Anki eller leveres som importfil.
 ---
 
 # Anki-kort fra pensum
