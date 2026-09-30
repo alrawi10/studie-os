@@ -47,7 +47,11 @@ scripts/
   kalender.py          planlægger (Apple Kalender via AppleScript)
   install_planner.sh   kør planlæggeren automatisk hver 30. min (launchd)
   canvas_mcp.sh        starter Canvas MCP med token fra .env
+  studie_mcp.py        MCP-server med sync/deadlines/planlægning/opgaver/indbakke/billeder til Claude Desktop
+  desktop_mcp.sh       registrerer studie-, Anki- og NotebookLM-MCP i Claude Desktop
+  pak_portable.py      pakker skills + projektinstruktioner til Chat/Projekter/Cowork (dist/)
 CLAUDE.example.md      skabelon til din personlige CLAUDE.md
+portable/              skabelon til projektinstruktioner (Chat/Projekter/Cowork)
 ```
 
 ## Universiteter
@@ -109,6 +113,21 @@ Læs altid den aktuelle README for hvert af MCP-projekterne. Kommandoerne nedenf
    ved navn "Studieplan", og kør `scripts/install_planner.sh`.
 
 Åbn derefter Claude Code i mappen og skriv fx `deadlines`.
+
+## Brug uden Claude Code (Chat, Projekter og Cowork)
+| | Claude Code | Claude Desktop (Chat/Cowork) | claude.ai web/mobil |
+|---|---|---|---|
+| Kort, eksamenssvar, fejlanalyse | ✅ | ✅ | ✅ (kort som importfil, pensum fra projektfiler) |
+| NotebookLM og Anki direkte | ✅ | ✅ | ❌ |
+| Sync, deadlines, kalenderplanlægning, Siri-indbakke, figurer fra PDF | ✅ | ✅ via MCP-serveren `studie` | ❌ (kræver din Mac) |
+
+1. **Pak:** `python3 scripts/pak_portable.py` → `dist/skills/*.zip` + `dist/projekt-instruktioner.md`.
+2. **Skills:** Claude → Tilpas → Skills → Tilføj → upload hver zip.
+3. **Instruktioner:** opret et projekt (eller åbn Cowork), og indsæt `dist/projekt-instruktioner.md`.
+   På claude.ai uden Desktop: læg fagets PDF'er i projektets viden, så de bruges som pensum.
+4. **Desktop-værktøjer (macOS):** luk Claude helt (⌘Q), og kør i Terminal: `scripts/desktop_mcp.sh`.
+   Det registrerer `studie` (scripts/studie_mcp.py), `anki` og NotebookLM i Claude Desktop (sikkerhedskopi tages først;
+   fjern igen med `--fjern`).
 
 ## Vigtigt om data, ophavsret og ansvar
 - **Undervisningsmateriale må ikke deles.** Filerne i `fag/` tilhører universitet og forlag og er udelukket i `.gitignore`. Del aldrig din `fag/`-mappe.

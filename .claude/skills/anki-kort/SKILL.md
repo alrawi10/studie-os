@@ -1,71 +1,75 @@
 ---
 name: anki-kort
-description: Bruges når der skal laves Anki-kort til odontologi ud fra pensum
+description: Bruges når der skal laves Anki-kort ud fra pensum – fx "læst <fag> <emne>", "kort <fag> <emne>" eller "lav kort om …". Kildebelagte kort efter faste kortregler; oprettes direkte i Anki eller leveres som importfil.
 ---
 
 # Anki-kort fra pensum
 
-Laver kildebelagte Anki-kort ud fra NotebookLM og opretter dem i `Odontologi::<Fag>::<Emne>`.
-Læs altid `config/kortregler.md` først. Reglerne dér er bindende.
+Laver kildebelagte Anki-kort og opretter dem i `<Studie>::<Fag>::<Emne>`.
+**Kortreglerne er bindende:** `config/kortregler.md` (projektmappen) eller `references/kortregler.md` (denne skill).
 
-## Værktøjer
-- **NotebookLM:** MCP `gemini-notebook-mcp` (`notebook_query`, `source_list`).
-  Fallback: `~/.local/bin/nlm notebook query <notebook_id> "<spørgsmål>" --json`.
-- **Anki:** MCP `anki` (`find_notes`, `notes_info`, `create_deck`, `add_notes`). Anki skal være åben.
-  Note-typer: `<studie>-Basic` (Forside, Bagside, Uddybning, Kilde, Billede) og
-  `<studie>-Cloze` (Tekst, Uddybning, Kilde, Billede), hvor `<studie>` er feltet `studie` i `config/fag.json`
-  (fx `Odontologi-Basic`).
+## 0. Find ud af, hvor du kører (gør det stille, ét tjek)
+| Tjek | Ja → | Nej → |
+|---|---|---|
+| Projektmappe med `config/fag.json`? (Claude Code) | Slå fag op dér (`studie`, `notebook_id`, `notebook_titel`, `anki_deck`) | Spørg om studie/fag, eller brug projektets instruktioner |
+| NotebookLM-værktøjer (`notebook_query`)? | Pensum hentes med citater fra NotebookLM | Brug projektets filer/vedhæftede PDF'er. Mangler de, så bed om kilden (upload/indsæt) |
+| Anki-værktøjer (`add_notes`)? | Opret kortene direkte (trin 7) | Lever en **importfil** (trin 7b) |
+| Terminal + `scripts/billede.py`? | Figurer fra pensum (trin 5b) | Ingen billeder, medmindre brugeren selv vedhæfter et |
 
 ## Arbejdsgang
-1. **Afklar fag og emne.** Slå faget op i `config/fag.json` → `notebook_id`, `notebook_titel`, `anki_deck`.
-   Er emnet en bestemt forelæsning, så find kildens titel med `source_list`.
-   **"læst <fag> <emne>"** (brugerens faste arbejdsgang: kort laves løbende, lige efter at et emne er læst):
-   afgræns NotebookLM-forespørgslen til præcis de kilder, der hører til det læste (`source_ids`),
+1. **Afklar fag og emne.** Deck = `<anki_deck eller Studie::Fag>::<Emne>`, fx `Odontologi::KOF::Tyggemuskler`.
+   **"læst <fag> <emne>"** er brugerens faste arbejdsgang (kort laves lige efter, at et emne er læst):
+   afgræns til præcis de kilder, der hører til det læste (NotebookLM: `source_ids` fundet med `source_list`),
    og lav ikke kort om stof, brugeren ikke har læst endnu.
-   Deck = `<anki_deck>::<Emne>`, fx `Odontologi::KOF::Tyggemuskler`.
-2. **Spørg NotebookLM** (evt. afgrænset til relevante `source_ids`). Brug fx:
+2. **Hent stoffet med citater.** NotebookLM (evt. afgrænset), ellers projektets filer:
    > "Giv mig de centrale fakta, definitioner, mekanismer, klassifikationer, tal/grænseværdier og kliniske pointer om <emne>. Angiv for hvert punkt det præcise citat, kildens titel og side-/slidenummer."
 
    Stil opfølgende spørgsmål, hvis citater eller sidetal mangler.
-3. **Tjek for dubletter** i hele samlingen, også brugerens egne, ældre decks uden for `Odontologi::`:
-   `find_notes` med `tag:emne::<emne>` og derefter med 2–4 centrale nøgleord (fx `"parodontitis" "pochedybde"`)
-   → `notes_info`. Spring over, hvad der allerede er dækket. Nævn dem kort med deck-navn.
-4. **Lav kortene** efter `config/kortregler.md`: ét faktum pr. kort, cloze til definitioner/tal/sekvenser,
-   basic til hvorfor/hvordan og klinik, dansk fagsprog med latinsk/engelsk term i parentes første gang,
-   bagside ≤ ca. 25 ord, uddybning i `Uddybning`, ca. 8–15 kort pr. forelæsning/kapitel.
-5. **Kvalitetstjek.** Hvert kort skal pege på et konkret citat fra trin 2.
-   Kort uden kildebelæg oprettes **ikke**. De vises i en separat liste "Ubekræftet".
-   Tjek også: ingen ja/nej, ingen multiple choice, svaret står ikke i spørgsmålet, én ting pr. kort.
-5b. **Billeder** til kort om noget visuelt (histologi, røntgen, kliniske fotos, anatomi, klassifikationsfigurer,
-   flowdiagrammer). Brug den citerede kilde og side/slide:
+3. **Tjek for dubletter** (kun med Anki-værktøjer): `find_notes` med `tag:emne::<emne>` og derefter 2–4 centrale
+   nøgleord i hele samlingen → `notes_info`. Spring over, hvad der er dækket, og nævn det kort med deck-navn.
+   Uden Anki: spørg, om der allerede findes kort om emnet.
+4. **Lav kortene** efter kortreglerne: ét faktum pr. kort, cloze til definitioner/tal/sekvenser, basic til
+   hvorfor/hvordan og klinik, fagsprog med latinsk/engelsk term i parentes første gang, bagside ≤ ca. 25 ord,
+   mekanisme i `Uddybning`, ca. 8–15 kort pr. forelæsning/kapitel.
+5. **Kvalitetstjek.** Hvert kort skal pege på et konkret citat fra trin 2. Kort uden kildebelæg oprettes **ikke**,
+   men vises i en separat liste "Ubekræftet". Ingen ja/nej, ingen multiple choice, svaret står ikke i spørgsmålet.
+5b. **Billeder** (kun i projektmappen) til kort om noget visuelt (histologi, røntgen, kliniske fotos, anatomi,
+   klassifikationsfigurer). Brug den citerede kilde og side/slide:
    ```bash
    uv run -q --python 3.12 --with pymupdf --with python-pptx --with pillow --with requests \
      scripts/billede.py --fag <Fag> --kilde "<kildetitel>" --side <nr> --figur 1
    ```
-   (`--figur N` beskærer automatisk til figur N på en PDF-side; `--beskaer x0,y0,x1,y1` beskærer manuelt;
-   PPTX giver det største billede på sliden, `--nr 2` det næststørste.)
-   **Se altid selv på PNG'en** (Read på filstien), før den bruges. Den skal vise det, kortet spørger om,
-   og svaret må ikke stå skrevet i billedet på forsiden. Et billede må kun på et kort, når det støtter
-   netop det faktum. Tilføj ikke billeder til rene definitionskort.
-   Når kortet er godkendt: kør igen med `--anki`, og sæt den udskrevne `<img src="…">` i feltet `Billede`
-   (vises på bagsiden). Til genkendelse af mange strukturer på én figur: foreslå brugeren
-   Ankis indbyggede Image Occlusion, og giv stien til PNG'en.
+   (`--figur N` beskærer til figur N på en PDF-side, `--beskaer x0,y0,x1,y1` manuelt, PPTX giver det største billede.)
+   **Se altid selv på PNG'en**, før den bruges. Den skal vise det, kortet spørger om, og ikke afsløre svaret.
+   Ikke på rene definitionskort. Når kortet er godkendt: kør igen med `--anki`, og sæt `<img src="…">` i `Billede`.
+   Mange strukturer på én figur → foreslå Ankis indbyggede Image Occlusion med stien til PNG'en.
 6. **Vis en tabel** til godkendelse:
 
    | # | Type | Forside / Tekst | Bagside | Billede | Kilde | Tags |
    |---|---|---|---|---|---|---|
 
-   I kolonnen Billede: kort beskrivelse af figuren eller "–".
-
-   Opret først, når brugeren skriver **ok** (eller rettelser → opdatér tabellen).
-   Hvis brugeren har skrevet **"direkte"** i sin anmodning, må kortene oprettes uden godkendelse.
-7. **Opret i Anki.** `create_deck` (hvis nødvendigt), derefter ét `add_notes`-kald pr. note-type med
-   `tags: ["fag::<fag>", "emne::<emne>", "ai-genereret", …]`. Rapportér antal oprettede note-id'er
-   og eventuelle dubletter/fejl.
+   Opret først, når brugeren skriver **ok** (eller rettelser → opdatér tabellen). Har brugeren skrevet
+   **"direkte"**, må kortene oprettes uden godkendelse.
+7. **Opret i Anki** (Anki-værktøjer): `create_deck` ved behov, derefter ét `add_notes` pr. note-type med
+   `tags: ["fag::<fag>", "emne::<emne>", "ai-genereret", …]`. Rapportér antal oprettede og eventuelle fejl.
+7b. **Importfil** (uden Anki-værktøjer): lav én tekstfil pr. note-type som downloadbar fil
+   (`<emne>-basic.txt` og `<emne>-cloze.txt`; kan filer ikke oprettes, så som kodeblokke). Tabulator mellem felter,
+   HTML tilladt, ingen tabulatorer/linjeskift inde i felterne (brug `<br>`):
+   ```
+   #separator:tab
+   #html:true
+   #notetype:<Studie>-Basic
+   #deck:<Studie>::<Fag>::<Emne>
+   #tags column:6
+   <Forside>	<Bagside>	<Uddybning>	<Kilde>		fag::<fag> emne::<emne> ai-genereret
+   ```
+   Cloze-filen: `#notetype:<Studie>-Cloze`, kolonnerne `Tekst, Uddybning, Kilde, Billede, tags` og `#tags column:5`.
+   Forklar importen: **Anki → Filer → Importér → vælg filen**. Findes note-typen ikke, så vælg en note-type med
+   samme antal felter i importdialogen (fx den indbyggede Basic/Grundlæggende eller Cloze) – eller opret
+   `<Studie>-Basic`/`-Cloze` først (felterne står i kortreglerne).
 
 ## Feltformat
-- `Kilde`: `<notebook_titel> · <kildetitel> · s./slide <nr>`
+- `Kilde`: `<notebook- eller projektnavn> · <kildetitel> · s./slide <nr>`
 - `Uddybning`: 1–4 sætninger om mekanisme/kontekst. Må gerne indeholde det ordrette citat i kursiv.
-- `Billede`: `<img src="<studie>_….png">` fra `scripts/billede.py --anki` (trin 5b) eller et billede, brugeren leverer
-  (`store_media_file`). Ellers tomt.
+- `Billede`: `<img src="…">` fra trin 5b eller et billede, brugeren leverer (`store_media_file`). Ellers tomt.
 - Cloze: `{{c1::…}}`. Brug flere huller (c1, c2 …) i samme note til sekvenser i stedet for én lang liste.

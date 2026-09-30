@@ -24,3 +24,6 @@ __pycache__/
 *.log
 *.part
 .DS_Store
+
+# Pakkede skills/instruktioner (personlige)
+dist/
