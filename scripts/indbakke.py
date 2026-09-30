@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Indbakke via Apple Påmindelser: ting dikteret til Siri ("Tilføj … til Studie") behandles af Claude.
+"""Indbakke via Apple Påmindelser: ting dikteret til Siri ("Tilføj … til Påmindelser") behandles af Claude.
 
 Kommandoer:
     indbakke.py hent            ubehandlede punkter som JSON
     indbakke.py status          én linje til session-start (antal ubehandlede punkter)
     indbakke.py afslut ID ...   afkryds behandlede punkter (sletter intet)
 
-Listens navn kan ændres med miljøvariablen INDBAKKE_LISTE (standard "Studie").
+Listens navn kan ændres med miljøvariablen INDBAKKE_LISTE (standard "Påmindelser").
 """
 import json
 import os
@@ -15,7 +15,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-LISTE = os.environ.get("INDBAKKE_LISTE", "Studie")
+LISTE = os.environ.get("INDBAKKE_LISTE", "Påmindelser")
 DK = ZoneInfo("Europe/Copenhagen")
 US, RS = "\x1f", "\x1e"
 

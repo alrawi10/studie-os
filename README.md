@@ -36,7 +36,7 @@ scripts/
   notebook_sync.py     kilder → NotebookLM (opretter notebooks, undgår dubletter, store PPTX som tekst)
   sync_all.sh          begge ovenstående
   deadlines.py         kommende deadlines fra Canvas
-  indbakke.py          Påmindelser-liste "Studie" som indbakke (Siri-diktat), tjekkes ved session-start
+  indbakke.py          Påmindelser-liste "Påmindelser" som indbakke (Siri-diktat), tjekkes ved session-start
   tilfoej_bog.py       lærebog → notebook (tekst med sidemarkører, deles over ~350.000 ord)
   billede.py           figur fra citeret PDF-side/PPTX-slide → Anki-kortets Billede-felt
   kalender.py          planlægger (Apple Kalender via AppleScript)
