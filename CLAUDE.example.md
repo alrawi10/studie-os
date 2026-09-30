@@ -34,6 +34,8 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
   med mine browser-cookies, så det bruges kun til studieformål.
 - **Anki** er spaced repetition. MCP: `anki` (add-on AnkiMCP på `http://127.0.0.1:3141/`).
 
+- **Claude Desktop/Cowork** bruger de samme værktøjer via MCP-serveren `studie` (scripts/studie_mcp.py).
+
 ## Hvor tingene ligger
 ```
 <projektmappe>/
@@ -56,6 +58,10 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   ├── deadlines.py       # kommende deadlines fra LMS'et (+ evt. kalender-feed ICAL_URL)
 │   ├── indbakke.py        # Påmindelser-indbakke (Siri-diktat)
 │   ├── billede.py         # figur fra citeret side/slide → Anki (bruges af anki-kort)
+│   ├── tilfoej_bog.py     # lærebog → notebook (sidemarkører, deles ved store bøger)
+│   ├── kalender.py        # planlægger i Apple Kalender (install_planner.sh: hver 30. min)
+│   ├── studie_mcp.py      # MCP-server til Claude Desktop/Cowork (desktop_mcp.sh registrerer den)
+│   ├── pak_portable.py    # pakker skills + projektinstruktioner til Chat/Cowork (dist/)
 │   └── canvas_mcp.sh      # starter Canvas MCP med .env
 └── .claude/skills/        # anki-kort, eksamenssvar, fejlanalyse
 ```
@@ -95,6 +101,8 @@ andre kalendere der er optaget tid. Læseblokke lægges kun i kalenderen "Studie
 Kommandoerne `opgave`, `nåede ikke`, `færdig` og `plan` står i tabellen ovenfor
 (synonymer: "tilføj opgave …", "jeg skal nå …", `planlæg`, "færdig med …").
 Rammer (arbejdstid, bloklængde, Anki-tid, fridage) står i `config/planlaegning.json`.
+Planen opdateres **automatisk hver 30. min** (launchd, log: `planlaegning/auto.log`; slå fra med
+`scripts/install_planner.sh --fjern`). Påbegyndte blokke flyttes aldrig.
 
 ### Indbakke (Siri → Påmindelser › listen "Påmindelser")
 Jeg dikterer på farten: *"Hey Siri, tilføj 'læst paro F4' til Påmindelser"*. Ved session-start vises antal ubehandlede punkter.
