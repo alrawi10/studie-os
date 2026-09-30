@@ -160,7 +160,9 @@ def main():
 
     CACHE.mkdir(parents=True, exist_ok=True)
     slug = normaliser(kilde.stem)[:40] or "kilde"
-    filnavn = f"odont_{args.fag.lower()}_{slug}_s{args.side}{'_c' if beskaer else ''}{f'_f{args.figur}' if args.figur else ''}{f'_b{args.nr}' if args.nr > 1 else ''}.png"
+    cfg_sti = ROD / "config" / "fag.json"
+    studie = json.loads(cfg_sti.read_text()).get("studie", "studie") if cfg_sti.exists() else "studie"
+    filnavn = f"{normaliser(studie)[:12] or 'studie'}_{args.fag.lower()}_{slug}_s{args.side}{'_c' if beskaer else ''}{f'_f{args.figur}' if args.figur else ''}{f'_b{args.nr}' if args.nr > 1 else ''}.png"
     filnavn = re.sub(r"[^a-z0-9_.-]", "", filnavn.replace("æ", "ae").replace("ø", "oe").replace("å", "aa"))
     ud = CACHE / filnavn
     ud.write_bytes(til_png(data))

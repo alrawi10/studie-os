@@ -1,9 +1,24 @@
-# Odontologi – studieprojekt
+# <Studie> – studieprojekt  ← tilpas (fx Odontologi, Jura, Medicin)
 
 ## Hvem jeg er
 <Uddannelse> på <universitet> (<årgang>, semester <XX>).  ← tilpas
 Jeg foretrækker **dybe, præcise faglige forklaringer i professorniveau**, forankret i pensum.
 **Svar altid på dansk.** Brug dansk fagsprog med latinsk/engelsk term i parentes første gang.
+
+## Første opsætning (når jeg skriver `opsæt`, eller `config/fag.json` mangler)
+Guid mig trin for trin, og stop ved alt jeg selv skal gøre (login, tokens, installationer):
+1. **Universitet → platform** (tjek altid, hvis i tvivl): KU og CBS = `canvas` · AAU, RUC, ITU = `moodle` ·
+   AU og DTU = `brightspace` · SDU = `itslearning` (eksperimentel) · ukendt/intet API = `manuel`.
+2. `cp .env.example .env && chmod 600 .env`. Forklar præcis, hvor jeg finder token/cookie til min platform
+   (se kommentaren øverst i `scripts/lms/<platform>.py`), og lad mig selv indsætte det. Bed aldrig om det i chatten.
+3. `cp config/fag.example.json config/fag.json`, sæt `studie` og `lms`, og kør
+   `uv run -q --python 3.12 --with requests --with python-dotenv --with icalendar scripts/lms_test.py`.
+   Ved ❌: læs fejlen, ret opsætningen, eller brug `lms_test.py --raa <sti>` til at se API-strukturen.
+4. `scripts/lms_sync.py --kurser` → lad mig vælge fagene, og skriv dem i `config/fag.json`
+   (`kursus_id`, `kursusnavn`, `notebook_titel`, `anki_deck` = `<Studie>::<Fag>`).
+5. NotebookLM (`nlm login`), Anki-add-on og note-typerne `<Studie>-Basic`/`<Studie>-Cloze` som i README,
+   derefter `scripts/sync_all.sh`. Kalender og Siri-indbakke er valgfrie (kun macOS).
+6. Udfyld "Hvem jeg er" ovenfor sammen med mig.
 
 ## Kildehierarki
 1. **NotebookLM** (pensum, én notebook pr. fag): svar med citater (kildetitel + side/slide)
@@ -13,7 +28,8 @@ Jeg foretrækker **dybe, præcise faglige forklaringer i professorniveau**, fora
 Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen viden.
 
 ## Systemet
-- **Absalon/Canvas** (`CANVAS_API_URL` i `.env`) er kilden til fag, filer, moduler og deadlines. MCP: `canvas-api`.
+- **LMS** (platform = `lms` i `config/fag.json`: canvas / moodle / brightspace / itslearning / manuel) er kilden til
+  fag, filer og deadlines via `scripts/lms_sync.py`. Filer kan altid lægges manuelt i `fag/<fag>/kilder/Manuel/`.
 - **NotebookLM** er et kildebundet arkiv. MCP: `gemini-notebook-mcp` (CLI: `~/.local/bin/nlm`). Uofficielt API
   med mine browser-cookies, så det bruges kun til studieformål.
 - **Anki** er spaced repetition. MCP: `anki` (add-on AnkiMCP på `http://127.0.0.1:3141/`).
@@ -33,9 +49,11 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   └── fejllog.md         # svage emner fra Anki-statistik
 ├── scripts/
 │   ├── sync_all.sh        # Absalon → kilder/ → NotebookLM
-│   ├── absalon_sync.py    # henter nye/ændrede PDF/PPTX/DOCX fra Files + Modules
+│   ├── lms_sync.py        # henter nye/ændrede PDF/PPTX/DOCX fra LMS'et + kilder/Manuel/
+│   ├── lms/               # adaptere: canvas, moodle, brightspace, itslearning, ical
+│   ├── lms_test.py        # diagnose af LMS-forbindelsen
 │   ├── notebook_sync.py   # uploader nye filer til fagets notebook (opretter notebook ved behov)
-│   ├── deadlines.py       # kommende deadlines fra Absalon
+│   ├── deadlines.py       # kommende deadlines fra LMS'et (+ evt. kalender-feed ICAL_URL)
 │   ├── indbakke.py        # Påmindelser-indbakke (Siri-diktat)
 │   ├── billede.py         # figur fra citeret side/slide → Anki (bruges af anki-kort)
 │   └── canvas_mcp.sh      # starter Canvas MCP med .env
@@ -66,7 +84,7 @@ Gamle formuleringer ("har læst …", "skal nå …", "færdig med …") virker 
 | `spørgsmål <emne>` (også `forklar …`) | Besvar ud fra pensum (NotebookLM) med citater |
 | `eksamen <fag> <spørgsmål>` | Skill `eksamenssvar` |
 | `fejl` | Skill `fejlanalyse` |
-| `deadlines` | Kør `uv run -q --python 3.12 --with requests --with python-dotenv scripts/deadlines.py` (14 dage) og opsummér |
+| `deadlines` | Kør `uv run -q --python 3.12 --with requests --with python-dotenv --with icalendar scripts/deadlines.py` (14 dage) og opsummér |
 | `sync` | Kør `scripts/sync_all.sh` og opsummér nye filer pr. fag og hvad der blev uploadet/udeladt |
 | `indbakke` | Behandl Påmindelser-indbakken (se nedenfor) |
 Eksempler: `læst paro F4` · `opgave KOF epikrise 3 timer fredag` · `nåede ikke KOF læsning` · `færdig KOF opslag` · `spørgsmål DC-TMD akse 2`.

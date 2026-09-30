@@ -4,8 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
 
-echo "### 1/2 Absalon-synk"
-uv run -q --python 3.12 --with requests --with python-dotenv scripts/absalon_sync.py "$@"
+echo "### 1/2 LMS-synk"
+uv run -q --python 3.12 --with requests --with python-dotenv scripts/lms_sync.py "$@"
 
 echo
 echo "### 2/2 NotebookLM-upload"

@@ -1,11 +1,11 @@
 # full-uni-package
 
-**Et studiesystem til Claude Code, der binder Canvas (fx KU's Absalon), NotebookLM, Anki og Apple Kalender sammen.**
+**Et studiesystem til Claude Code, der binder dit universitets LMS (Canvas, Moodle, Brightspace eller itslearning), NotebookLM, Anki og Apple Kalender sammen.**
 
-> 🇬🇧 *A Claude Code study system for university students: syncs course files from Canvas LMS, archives them in one NotebookLM notebook per course (source-grounded answers with citations), creates spaced-repetition cards directly in Anki, and plans study blocks around your timetable in Apple Calendar (Motion-style). Built for dentistry at the University of Copenhagen, but works with any Canvas institution. Docs are in Danish.*
+> 🇬🇧 *A Claude Code study system for university students: syncs course files from Canvas LMS, archives them in one NotebookLM notebook per course (source-grounded answers with citations), creates spaced-repetition cards directly in Anki, and plans study blocks around your timetable in Apple Calendar (Motion-style). Built for dentistry at the University of Copenhagen; supports Canvas, Moodle, Brightspace and itslearning (plus a manual/iCal fallback), so it works for any study programme. Docs are in Danish.*
 
 ```
-Absalon/Canvas ──sync──▶ fag/<fag>/kilder/ ──upload──▶ NotebookLM (1 notebook pr. fag)
+LMS (Canvas/…)  ──sync──▶ fag/<fag>/kilder/ ──upload──▶ NotebookLM (1 notebook pr. fag)
                                                           │ citater
 Apple Kalender ◀──planlæg── Claude Code ◀─────────────────┘
                                   │ kildebelagte kort
@@ -35,10 +35,12 @@ Alle Anki-kort følger [`config/kortregler.md`](config/kortregler.md): ét faktu
 .claude/skills/        anki-kort, eksamenssvar, fejlanalyse (Claude Code-skills)
 config/                kortregler.md + *.example.json (kopiér til fag.json / planlaegning.json)
 scripts/
-  absalon_sync.py      Canvas Files + Modules → fag/<fag>/kilder/ (kun nye/ændrede, manifest)
+  lms_sync.py          LMS → fag/<fag>/kilder/ (kun nye/ændrede, manifest) + filer fra kilder/Manuel/
+  lms/                 adaptere: canvas, moodle, brightspace, itslearning + ical (deadlines fra kalender-feed)
+  lms_test.py          diagnose af LMS-forbindelsen (udskriver ingen hemmeligheder)
   notebook_sync.py     kilder → NotebookLM (opretter notebooks, undgår dubletter, store PPTX som tekst)
   sync_all.sh          begge ovenstående
-  deadlines.py         kommende deadlines fra Canvas
+  deadlines.py         kommende deadlines fra LMS'et og/eller kalender-feed
   indbakke.py          Påmindelser-liste "Påmindelser" som indbakke (Siri-diktat), tjekkes ved session-start
   tilfoej_bog.py       lærebog → notebook (tekst med sidemarkører, deles over ~350.000 ord)
   billede.py           figur fra citeret PDF-side/PPTX-slide → Anki-kortets Billede-felt
@@ -48,25 +50,43 @@ scripts/
 CLAUDE.example.md      skabelon til din personlige CLAUDE.md
 ```
 
+## Universiteter
+| Universitet | Platform | `lms` | Status |
+|---|---|---|---|
+| KU (Absalon), CBS | Canvas | `canvas` | ✅ Brugt dagligt (KU Odontologi) |
+| AAU, RUC, ITU | Moodle | `moodle` | 🧪 Bygget efter API-dokumentationen, mangler test med rigtig konto |
+| AU (Brightspace), DTU (DTU Learn) | Brightspace | `brightspace` | 🧪 Mangler test. Officielt token kræver typisk universitetets godkendelse, ellers browser-cookie |
+| SDU | itslearning | `itslearning` | 🧪 Eksperimentel (uofficielt mobilapp-API), mangler test |
+| Alle andre | – | `manuel` | ✅ Læg PDF'er i `fag/<fag>/kilder/Manuel/`, og få deadlines fra et kalender-feed (`ICAL_URL`) |
+
+Platformene er noteret efter bedste viden; tjek dit eget universitet. **Studerer du på AAU, AU, DTU, SDU, RUC eller ITU?**
+Hjælp med at teste: Følg opsætningen, kør `scripts/lms_test.py` (udskriver ingen hemmeligheder) og opret et issue
+med resultatet. Adapterne ligger i [`scripts/lms/`](scripts/lms) og har samme fire funktioner: kurser, filer, download og deadlines.
+
 ## Krav
 - macOS (kalenderdelen bruger Apple Kalender), [Claude Code](https://claude.com/claude-code)
 - [Homebrew](https://brew.sh), `uv`, `node`, Google Chrome
 - [Anki](https://apps.ankiweb.net) **25.07+** med add-on'et [AnkiMCP Server](https://github.com/ankimcp/anki-mcp-server-addon) (kode `124672614`)
-- En Canvas-konto, hvor du må oprette adgangstokens, og en Google-konto til NotebookLM
+- Adgang til dit LMS (token, app-token eller cookie – se `.env.example`) og en Google-konto til NotebookLM
+- Kalenderplanlægning og Siri-indbakke kræver macOS; resten virker også uden
 
 ## Opsætning
-Læs altid den aktuelle README for hvert af de tre MCP-projekter. Kommandoerne nedenfor kan være forældede.
+**Nemmest:** klon repoet, åbn Claude Code i mappen, og skriv **`opsæt`**. Så guider Claude dig trin for trin
+(platform, token, kurser, NotebookLM, Anki). Nedenfor står de samme trin manuelt.
+Læs altid den aktuelle README for hvert af MCP-projekterne. Kommandoerne nedenfor kan være forældede.
 
 1. **Klon og konfigurér**
    ```bash
    git clone https://github.com/alrawi10/full-uni-package ~/Studie && cd ~/Studie
-   cp .env.example .env && chmod 600 .env        # indsæt dit Canvas-token i .env
+   cp .env.example .env && chmod 600 .env        # udfyld blokken for din platform
    cp config/fag.example.json config/fag.json
    cp config/planlaegning.example.json config/planlaegning.json
    cp CLAUDE.example.md CLAUDE.md                 # tilpas "Hvem jeg er"
+   # sæt "studie" og "lms" i config/fag.json, og test forbindelsen:
+   uv run -q --python 3.12 --with requests --with python-dotenv --with icalendar scripts/lms_test.py
    ```
    Læg ikke mappen i `~/Desktop`, `~/Documents` eller `~/Downloads`. macOS blokerer baggrundsjob dér.
-2. **Canvas MCP** ([vishalsachdev/canvas-mcp](https://github.com/vishalsachdev/canvas-mcp))
+2. **Kun Canvas, valgfrit: Canvas MCP** ([vishalsachdev/canvas-mcp](https://github.com/vishalsachdev/canvas-mcp))
    ```bash
    git clone https://github.com/vishalsachdev/canvas-mcp ~/.local/share/canvas-mcp
    cd ~/.local/share/canvas-mcp && uv venv --python 3.12 && uv pip install -e .
@@ -81,9 +101,9 @@ Læs altid den aktuelle README for hvert af de tre MCP-projekter. Kommandoerne n
    ```
 4. **Anki**: installér add-on'et, genstart Anki, og kør så
    `claude mcp add --scope user --transport http anki http://127.0.0.1:3141/`.
-   Opret note-typerne `Odontologi-Basic` (Forside, Bagside, Uddybning, Kilde, Billede) og
-   `Odontologi-Cloze` (Tekst, Uddybning, Kilde, Billede), eller bed Claude om det.
-5. **Fyld `config/fag.json`** med dine kursus-id'er. Du kan bede Claude om at hente dine aktive kurser.
+   Opret note-typerne `<Studie>-Basic` (Forside, Bagside, Uddybning, Kilde, Billede) og
+   `<Studie>-Cloze` (Tekst, Uddybning, Kilde, Billede), fx `Jura-Basic` – eller bed Claude om det.
+5. **Fyld `config/fag.json`** med dine kursus-id'er: `scripts/lms_sync.py --kurser` viser dine aktive kurser.
    Kør derefter `scripts/sync_all.sh`.
 6. **Planlægning (valgfrit)**: Tilpas kalendernavnene i `config/planlaegning.json`, opret en kalender
    ved navn "Studieplan", og kør `scripts/install_planner.sh`.

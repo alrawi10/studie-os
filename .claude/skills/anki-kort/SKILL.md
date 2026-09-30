@@ -12,8 +12,9 @@ Læs altid `config/kortregler.md` først. Reglerne dér er bindende.
 - **NotebookLM:** MCP `gemini-notebook-mcp` (`notebook_query`, `source_list`).
   Fallback: `~/.local/bin/nlm notebook query <notebook_id> "<spørgsmål>" --json`.
 - **Anki:** MCP `anki` (`find_notes`, `notes_info`, `create_deck`, `add_notes`). Anki skal være åben.
-  Note-typer: `Odontologi-Basic` (Forside, Bagside, Uddybning, Kilde, Billede) og
-  `Odontologi-Cloze` (Tekst, Uddybning, Kilde, Billede).
+  Note-typer: `<studie>-Basic` (Forside, Bagside, Uddybning, Kilde, Billede) og
+  `<studie>-Cloze` (Tekst, Uddybning, Kilde, Billede), hvor `<studie>` er feltet `studie` i `config/fag.json`
+  (fx `Odontologi-Basic`).
 
 ## Arbejdsgang
 1. **Afklar fag og emne.** Slå faget op i `config/fag.json` → `notebook_id`, `notebook_titel`, `anki_deck`.
@@ -65,6 +66,6 @@ Læs altid `config/kortregler.md` først. Reglerne dér er bindende.
 ## Feltformat
 - `Kilde`: `<notebook_titel> · <kildetitel> · s./slide <nr>`
 - `Uddybning`: 1–4 sætninger om mekanisme/kontekst. Må gerne indeholde det ordrette citat i kursiv.
-- `Billede`: `<img src="odont_….png">` fra `scripts/billede.py --anki` (trin 5b) eller et billede, brugeren leverer
+- `Billede`: `<img src="<studie>_….png">` fra `scripts/billede.py --anki` (trin 5b) eller et billede, brugeren leverer
   (`store_media_file`). Ellers tomt.
 - Cloze: `{{c1::…}}`. Brug flere huller (c1, c2 …) i samme note til sekvenser i stedet for én lang liste.

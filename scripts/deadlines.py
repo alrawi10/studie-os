@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
-"""Viser kommende afleveringer, quizzer og begivenheder fra Absalon for fagene i config/fag.json.
+"""Kommende afleveringer, quizzer og begivenheder fra LMS'et (og evt. kalender-feed i ICAL_URL).
 
 Brug:
-    uv run --with requests --with python-dotenv scripts/deadlines.py [--dage 14]
+    uv run --with requests --with python-dotenv --with icalendar scripts/deadlines.py [--dage 14]
 """
 import argparse
 import json
-import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-import requests
 from dotenv import load_dotenv
+
+from lms import LMSFejl, hent_adapter
+from lms import ical
 
 ROD = Path(__file__).resolve().parent.parent
 load_dotenv(ROD / ".env")
-API = os.environ["CANVAS_API_URL"].rstrip("/")
-H = {"Authorization": f"Bearer {os.environ['CANVAS_API_TOKEN']}"}
 DK = ZoneInfo("Europe/Copenhagen")
 
 
@@ -26,32 +25,37 @@ def main():
     p.add_argument("--dage", type=int, default=14)
     args = p.parse_args()
 
-    fag = json.loads((ROD / "config" / "fag.json").read_text())["fag"]
-    navn = {v["kursus_id"]: k for k, v in fag.items()}
-    nu = datetime.now(timezone.utc)
-    params = {
-        "start_date": nu.isoformat(),
-        "end_date": (nu + timedelta(days=args.dage)).isoformat(),
-        "context_codes[]": [f"course_{cid}" for cid in navn],
-        "per_page": 100,
-    }
-    url, poster = f"{API}/planner/items", []
-    while url:
-        r = requests.get(url, headers=H, params=params, timeout=60)
-        r.raise_for_status()
-        poster += r.json()
-        url, params = r.links.get("next", {}).get("url"), None
+    cfg = json.loads((ROD / "config" / "fag.json").read_text())
+    navn = {str(v["kursus_id"]): k for k, v in cfg["fag"].items() if v.get("kursus_id")}
+    fra = datetime.now(timezone.utc)
+    til = fra + timedelta(days=args.dage)
 
+    poster, advarsler = [], []
+    try:
+        lms = hent_adapter(cfg.get("lms", "canvas"))
+        if lms:
+            poster += lms.deadlines(fra, til, list(navn))
+    except (LMSFejl, NotImplementedError) as e:
+        advarsler.append(f"LMS: {e}")
+    try:
+        poster += ical.deadlines(fra, til)
+    except Exception as e:  # kalender-feed er valgfrit
+        advarsler.append(f"kalender-feed: {e}")
+
+    set_ = set()
     print(f"Deadlines og begivenheder de næste {args.dage} dage:\n")
-    if not poster:
+    for d in sorted(poster, key=lambda d: d.tid):
+        noegle = (d.titel, d.tid.replace(second=0, microsecond=0))
+        if noegle in set_:
+            continue  # samme deadline fra både LMS og kalender-feed
+        set_.add(noegle)
+        fag = navn.get(d.kursus_id or "", d.kursus_id or "")
+        status = " ✅ afleveret" if d.afleveret else ""
+        print(f"  {d.tid.astimezone(DK):%a %d/%m %H:%M}  {fag[:18]:18} {d.type[:16]:16} {d.titel}{status}")
+    if not set_:
         print("  (ingen)")
-    for p in sorted(poster, key=lambda p: p.get("plannable_date") or ""):
-        tid = datetime.fromisoformat(p["plannable_date"].replace("Z", "+00:00")).astimezone(DK)
-        titel = (p.get("plannable") or {}).get("title") or (p.get("plannable") or {}).get("name") or "?"
-        indleveret = (p.get("submissions") or {}).get("submitted") if isinstance(p.get("submissions"), dict) else None
-        status = " ✅ afleveret" if indleveret else ""
-        fagnavn = navn.get(p.get("course_id"), p.get("context_name", ""))
-        print(f"  {tid:%a %d/%m %H:%M}  {fagnavn:18} {p.get('plannable_type', ''):16} {titel}{status}")
+    for a in advarsler:
+        print(f"\n⚠️  {a}")
 
 
 if __name__ == "__main__":

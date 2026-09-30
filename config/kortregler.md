@@ -22,11 +22,11 @@ Gælder for alle kort, der oprettes via skill'en `anki-kort`.
 ## Note-typer
 | Note-type | Felter | Bruges til |
 |---|---|---|
-| `Odontologi-Basic` | Forside, Bagside, Uddybning, Kilde, Billede | hvorfor/hvordan, klinisk ræsonnement |
-| `Odontologi-Cloze` | Tekst, Uddybning, Kilde, Billede | definitioner, tal, sekvenser |
+| `<Studie>-Basic` (fx `Odontologi-Basic`) | Forside, Bagside, Uddybning, Kilde, Billede | hvorfor/hvordan, klinisk ræsonnement |
+| `<Studie>-Cloze` | Tekst, Uddybning, Kilde, Billede | definitioner, tal, sekvenser |
 
 ## Decks og tags
-- Deck: `Odontologi::<Fag>::<Emne>`. Fag = kort navn fra `config/fag.json`, Emne = kort navn uden `::`.
+- Deck: `<Studie>::<Fag>::<Emne>` (fx `Odontologi::KOF::Tyggemuskler`). Fag = kort navn fra `config/fag.json`, Emne = kort navn uden `::`.
 - Tags (altid): `fag::<fag>` `emne::<emne>` `ai-genereret`
 - Tags (når relevant): `klinisk` (patientsituation/behandlingsvalg), `eksamensrelevant` (fremhævet i pensum/eksamensspørgsmål).
 - Emne-tags skrives med små bogstaver og bindestreger, fx `emne::parodontitis-patogenese`.
