@@ -22,8 +22,11 @@ Apple Kalender ◀──planlæg── Claude Code ◀────────�
 | `fejl` | Finder svage emner ud fra Anki-lapses/FSRS-difficulty, forklarer dem og giver eksamensspørgsmål |
 | `sync` | Henter nye/ændrede filer fra Canvas og uploader dem til fagets notebook |
 | `deadlines` | Afleveringer og quizzer de næste 14 dage |
-| `jeg skal nå …` / `planlæg` | Motion-lignende planlægning af læseblokke i Apple Kalender |
-| `indbakke` | Behandler det, du har dikteret til Siri (*"tilføj 'har læst paro F4' til Studie"*): kort, opgaver og omplanlægning |
+| `opgave <titel> [fag] [tid] [deadline]` | Ny opgave; læseblokke planlægges Motion-lignende i Apple Kalender |
+| `nåede ikke <X>` / `færdig <X>` | Lægger minutter tilbage på opgaven / afslutter den, og planlægger igen |
+| `plan` / `status` | Viser og skriver planen / kort overblik over blokke, opgaver og deadlines |
+| `spørgsmål <emne>` | Svar ud fra pensum (NotebookLM) med citater |
+| `indbakke` | Behandler det, du har dikteret til Siri (*"tilføj 'læst paro F4' til Påmindelser"*). Første ord er de samme som ovenfor: `læst`, `opgave`, `nåede ikke`, `færdig`, `spørgsmål` |
 
 Alle Anki-kort følger [`config/kortregler.md`](config/kortregler.md): ét faktum pr. kort, cloze til definitioner og tal, basic til hvorfor/hvordan, og altid en kildehenvisning. Kort uden belæg i pensum oprettes ikke. Kort om noget visuelt (histologi, røntgen, kliniske fotos) får automatisk den citerede figur fra pensum med.
 

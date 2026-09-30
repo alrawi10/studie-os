@@ -51,37 +51,39 @@ Fag (kort navn): se `config/fag.json`. Slå altid id'er op dér.
 | `fejlanalyse` | Svage emner skal findes ud fra Anki-lapses/difficulty; opdaterer `fejllog.md` |
 
 ## Hurtigkommandoer (naturligt sprog)
+**Ét fælles ordforråd:** de samme korte ord virker i Claude *og* som første ord i en Siri-diktat til Påmindelser.
+Første ord afgør, hvad punktet er; resten er fag, emne, tid og deadline i fri tekst (fag kan forkortes).
+Gamle formuleringer ("har læst …", "skal nå …", "færdig med …") virker stadig som synonymer.
 | Jeg skriver | Du gør |
 |---|---|
-| `sync` | Kør `scripts/sync_all.sh` og opsummér nye filer pr. fag og hvad der blev uploadet/udeladt |
-| `læst <fag> <emne/forelæsning>` | Min faste arbejdsgang: jeg har netop læst emnet → skill `anki-kort`, afgrænset til præcis de kilder, jeg har læst |
+| `læst <fag> <emne>` | Jeg har netop læst emnet → skill `anki-kort`, afgrænset til præcis de kilder, jeg har læst |
 | `kort <fag> <emne>` | Skill `anki-kort`. Tilføjer jeg "direkte", må kortene oprettes uden godkendelse |
+| `opgave <titel> [fag] [tid] [deadline]` | Ny opgave i `planlaegning/opgaver.json` (id, titel, fag, minutter = rest_minutter, deadline, prioritet 1–3, status "aaben"). Estimér tid/prioritet, hvis jeg ikke angiver dem, og fortæl hvad du valgte |
+| `nåede ikke <X>` | Læg de mistede minutter til opgavens `rest_minutter`, og planlæg igen |
+| `færdig <X>` | Sæt status "faerdig", og planlæg igen |
+| `plan` | `uv run -q --python 3.12 --with python-dateutil scripts/kalender.py planlaeg`, vis planen, og skriv med `--skriv` når jeg siger ok |
+| `status` | Kort overblik: dagens/morgendagens blokke, åbne opgaver med rest og deadline, forsinkede opgaver, ubehandlet indbakke |
+| `spørgsmål <emne>` (også `forklar …`) | Besvar ud fra pensum (NotebookLM) med citater |
 | `eksamen <fag> <spørgsmål>` | Skill `eksamenssvar` |
 | `fejl` | Skill `fejlanalyse` |
 | `deadlines` | Kør `uv run -q --python 3.12 --with requests --with python-dotenv scripts/deadlines.py` (14 dage) og opsummér |
+| `sync` | Kør `scripts/sync_all.sh` og opsummér nye filer pr. fag og hvad der blev uploadet/udeladt |
+| `indbakke` | Behandl Påmindelser-indbakken (se nedenfor) |
+Eksempler: `læst paro F4` · `opgave KOF epikrise 3 timer fredag` · `nåede ikke KOF læsning` · `færdig KOF opslag` · `spørgsmål DC-TMD akse 2`.
 
 ### Planlægning (Apple Kalender, Motion-lignende)
 Beskriv her, hvilke skemaaktiviteter du møder op til (fx kun klinik/obligatorisk) og hvilke
 andre kalendere der er optaget tid. Læseblokke lægges kun i kalenderen "Studieplan".
-| Jeg skriver | Du gør |
-|---|---|
-| "tilføj opgave …" / "jeg skal nå …" | Tilføj til `planlaegning/opgaver.json` (id, titel, fag, minutter = rest_minutter, deadline, prioritet 1–3, status "aaben"). Estimér tid, hvis jeg ikke angiver den |
-| `planlæg` | `uv run -q --python 3.12 --with python-dateutil scripts/kalender.py planlaeg`, vis planen, og skriv med `--skriv` når jeg siger ok |
-| "nåede ikke X" | Læg de mistede minutter til opgavens `rest_minutter`, og planlæg igen |
-| "færdig med X" | Sæt status "faerdig", og planlæg igen |
+Kommandoerne `opgave`, `nåede ikke`, `færdig` og `plan` står i tabellen ovenfor
+(synonymer: "tilføj opgave …", "jeg skal nå …", `planlæg`, "færdig med …").
 Rammer (arbejdstid, bloklængde, Anki-tid, fridage) står i `config/planlaegning.json`.
 
-### Indbakke (Siri → Påmindelser › "Studie")
-Jeg dikterer på farten: *"Hey Siri, tilføj 'har læst paro F4' til Studie"*. Ved session-start vises antal ubehandlede punkter.
-`indbakke` → `python3 scripts/indbakke.py hent` (JSON), tolk hvert punkt, og vis en kort plan, før du handler:
-| Punktet betyder | Handling |
-|---|---|
-| har læst / er færdig med at læse X | `læst`-workflow (skill `anki-kort`) – ét emne ad gangen |
-| skal nå / skal lave / husk X (evt. deadline, tid) | ny opgave i `planlaegning/opgaver.json` (estimér tid hvis ikke nævnt) |
-| nåede ikke X | læg minutter tilbage på opgaven |
-| færdig med opgave X | status "faerdig" |
-| spørgsmål / "forklar …" | besvar ud fra pensum (NotebookLM) |
-Kør derefter `planlæg --skriv`, hvis opgaver ændrede sig, og afkryds de behandlede punkter med
+### Indbakke (Siri → Påmindelser › listen "Påmindelser")
+Jeg dikterer på farten: *"Hey Siri, tilføj 'læst paro F4' til Påmindelser"*. Ved session-start vises antal ubehandlede punkter.
+`indbakke` → `python3 scripts/indbakke.py hent` (JSON), tolk hvert punkt efter **første ord** (`læst`, `opgave`,
+`nåede ikke`, `færdig`, `spørgsmål`, `kort`, `eksamen`) som i hurtigkommando-tabellen, og vis en kort plan, før du handler.
+Punkter uden kendt første ord tolkes efter betydning ("har læst …" = `læst`, "skal nå/husk …" = `opgave`, "forklar …" = `spørgsmål`).
+Ét `læst`-emne ad gangen. Kør derefter `planlæg --skriv`, hvis opgaver ændrede sig, og afkryds de behandlede punkter med
 `python3 scripts/indbakke.py afslut <id> …`. Uklare punkter: spørg, og lad dem stå. Slet aldrig punkter.
 
 Python-scripts køres altid med `uv run -q --python 3.12 --with <pakker> scripts/<script>.py`
