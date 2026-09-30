@@ -1,4 +1,4 @@
-# full-uni-package
+# Studie OS
 
 **Et studiesystem til Claude (Claude Code, Claude Desktop og Cowork), der binder dit universitets LMS (Canvas, Moodle, Brightspace eller itslearning), NotebookLM, Anki, Apple Kalender og Siri sammen.**
 
@@ -81,7 +81,7 @@ Læs altid den aktuelle README for hvert af MCP-projekterne. Kommandoerne nedenf
 
 1. **Klon og konfigurér**
    ```bash
-   git clone https://github.com/alrawi10/full-uni-package ~/Studie && cd ~/Studie
+   git clone https://github.com/alrawi10/studie-os ~/Studie && cd ~/Studie
    cp .env.example .env && chmod 600 .env        # udfyld blokken for din platform
    cp config/fag.example.json config/fag.json    # sæt "studie" og "lms"
    cp config/planlaegning.example.json config/planlaegning.json

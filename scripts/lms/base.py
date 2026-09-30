@@ -49,7 +49,7 @@ class LMS:
 
     def __init__(self):
         self.session = requests.Session()
-        self.session.headers["User-Agent"] = "full-uni-package (studiesynk)"
+        self.session.headers["User-Agent"] = "studie-os (studiesynk)"
 
     def kurser(self) -> list[Kursus]:
         raise NotImplementedError

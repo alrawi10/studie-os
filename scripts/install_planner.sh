@@ -4,7 +4,7 @@
 # blokerer baggrundsjob dér.
 set -euo pipefail
 ROD="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
-LABEL="dk.full-uni-package.studieplan"
+LABEL="dk.studie-os.studieplan"
 PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
 INTERVAL="${INTERVAL:-1800}"
 
