@@ -35,6 +35,12 @@ description: Bruges når brugeren vil finde og arbejde med sine svage emner ud f
    (`update_note_fields` / nye kort via `anki-kort`) først efter brugerens **ok**.
    Slet aldrig kort – foreslå højst at suspendere dem.
 
+4. **Egen note** (hvis der findes en: `python3 scripts/noter.py laes --fag <Fag> --emne "<emne>"` / `studie.note_laes`):
+   sæt `noter.py marker --svag ja`, og tilføj i Claudes sektion (bevar resten af sektionen) et afsnit
+   `### ⚠️ Svært i Anki (ÅÅÅÅ-MM-DD)` med forklaringen, de 5 spørgsmål og en anbefaling om, hvad der skal genlæses.
+   Peg på det i brugerens egen tekst, der ser ud til at være kilden til misforståelsen. Ret aldrig brugerens tekst.
+   Når emnet ikke længere er svært ved en senere analyse: `--svag nej`, og fjern afsnittet.
+
 ## Output
-Kort rapport: top-emner med tal → forklaringer → spørgsmål → foreslåede kortændringer.
+Kort rapport: top-emner med tal → forklaringer → spørgsmål → foreslåede kortændringer → links til de berørte noter.
 I projektmappen gemmes forklaring og spørgsmål i `fejllog.md` under `## <emne> (<dato>)`.

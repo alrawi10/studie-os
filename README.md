@@ -20,7 +20,9 @@ Samme korte ord virker i Claude Code, i Claude Desktop/Cowork og som første ord
 | Du skriver | Hvad der sker |
 |---|---|
 | `status` | Overblik: dagens blokke, åbne opgaver, deadlines og ubehandlede indbakke-punkter |
-| `læst <fag> <emne>` | 8–15 kildebelagte Anki-kort fra præcis det, du har læst (pensum → tabel → **ok** → Anki) |
+| `læst <fag> <emne>` | 8–15 kildebelagte Anki-kort fra præcis det, du har læst (pensum → tabel → **ok** → Anki). Har du en note, tjekkes den mod pensum, og kortene fokuserer på det, du manglede |
+| `note <fag> <emne>` | Ny emne-note i Obsidian fra skabelonen |
+| `udvid <fag> <emne>` | Finder sammenhænge til andre fag i pensum og linker dine noter sammen |
 | `kort <fag> <emne>` | Kort til et vilkårligt emne (`direkte` = uden godkendelse) |
 | `spørgsmål <emne>` / `forklar …` | Svar ud fra pensum med citater (kildetitel + side/slide) |
 | `eksamen <fag> <spørgsmål>` | Svar i professorniveau med citater; Vancouver-referencer til afleveringer |
@@ -34,12 +36,23 @@ Samme korte ord virker i Claude Code, i Claude Desktop/Cowork og som første ord
 
 Alle Anki-kort følger [`config/kortregler.md`](config/kortregler.md): ét faktum pr. kort, cloze til definitioner og tal, basic til hvorfor/hvordan, og altid en kildehenvisning. Kort uden belæg i pensum oprettes ikke.
 
+## Egne noter (Obsidian)
+Mappen `fag/` er en [Obsidian](https://obsidian.md)-vault: dine noter, pensum-PDF'erne, eksamenssvar og fejllog ligger samme sted.
+- **`note paro F4`** opretter en note fra skabelonen (kernebudskab, mine noter, begreber, klinisk relevans, det jeg er i tvivl om).
+- **`læst paro F4`** læser din note og sammenligner den med pensum: ✅ det har du styr på · ➕ det mangler · ⚠️ præciseringer ·
+  ❓ svar på dine spørgsmål – alt med citater. Kortene prioriterer det, du manglede.
+- **Claude skriver kun i sin egen sektion** nederst i noten (mellem `<!-- claude:start -->` og `<!-- claude:end -->`).
+  Din egen tekst ændres aldrig – det tjekker `scripts/noter.py` ved hver skrivning.
+- **Anki ↔ noter:** kortene linker tilbage til noten (`obsidian://`), og `fejl` markerer noter om emner, du har svært ved (`svag: true`).
+- **`udvid paro F4`** finder sammenhænge til andre fag (fx farmakologi eller intern medicin) og foreslår `[[links]]` mellem noterne.
+
 ## En almindelig dag
 1. **Morgen:** `status` → dagens læseblokke (📚) og den daglige Anki-blok (🔁) ligger i kalenderen "Studieplan".
 2. **Repetér** dine forfaldne Anki-kort, og **læs** i blokkene. Spørg NotebookLM (eller `spørgsmål …`) undervejs.
-3. **Efter hvert emne:** `læst <fag> <emne>` → godkend tabellen → kortene ligger i Anki.
-4. **Når dagen skrider:** `nåede ikke …` / `færdig …` – kalenderen omplanlægges automatisk.
-5. **På farten:** diktér til Siri; skriv `indbakke`, næste gang du åbner Claude.
+3. **Skriv noter** med dine egne ord i Obsidian (`note <fag> <emne>`).
+4. **Efter hvert emne:** `læst <fag> <emne>` → se notetjekket → godkend tabellen → kortene ligger i Anki, og noten er suppleret.
+5. **Når dagen skrider:** `nåede ikke …` / `færdig …` – kalenderen omplanlægges automatisk.
+6. **På farten:** diktér til Siri; skriv `indbakke`, næste gang du åbner Claude.
 
 Hver uge: `sync`, `deadlines` og `fejl`. Op til eksamen: `eksamen …`.
 
@@ -48,7 +61,7 @@ Hver uge: `sync`, `deadlines` og `fejl`. Op til eksamen: `eksamen …`.
 |---|---|---|---|
 | Kort, eksamenssvar, fejlanalyse, spørgsmål | ✅ | ✅ | ✅ kort som Anki-importfil, pensum fra projektfiler |
 | NotebookLM og Anki direkte | ✅ | ✅ | ❌ |
-| Sync, deadlines, planlægning, opgaver, Siri-indbakke, figurer | ✅ | ✅ via MCP-serveren `studie` | ❌ kræver din Mac |
+| Sync, deadlines, planlægning, opgaver, Siri-indbakke, figurer, egne noter | ✅ | ✅ via MCP-serveren `studie` | ❌ kræver din Mac |
 | Automatisk indbakke-besked ved start | ✅ | ❌ skriv `status`/`indbakke` | ❌ |
 | Ændringer i selve systemet (scripts, GitHub) | ✅ | – | – |
 
@@ -113,7 +126,8 @@ Læs altid den aktuelle README for hvert af MCP-projekterne. Kommandoerne nedenf
    (tekst med sidemarkører; store bøger deles automatisk op; scannede bøger uploades som PDF).
 7. **Planlægning (valgfrit):** tilpas kalendernavnene i `config/planlaegning.json`, opret en kalender
    ved navn "Studieplan", og kør `scripts/install_planner.sh` (planlægger hver 30. min).
-8. **Siri-indbakke (valgfrit):** intet at installere – diktér *"Hey Siri, tilføj '…' til Påmindelser"*.
+8. **Noter (valgfrit):** installér Obsidian (`brew install --cask obsidian`), kør `scripts/opsaet_obsidian.sh`, og åbn mappen `fag` som vault.
+9. **Siri-indbakke (valgfrit):** intet at installere – diktér *"Hey Siri, tilføj '…' til Påmindelser"*.
    Claude Code viser ubehandlede punkter ved start (hook i `.claude/settings.json`). Anden liste: `INDBAKKE_LISTE`.
 
 ## Brug i Claude Desktop, Cowork og projekter
@@ -133,7 +147,7 @@ Læs altid den aktuelle README for hvert af MCP-projekterne. Kommandoerne nedenf
 .claude/skills/        anki-kort, eksamenssvar, fejlanalyse (virker i Claude Code og – pakket – i Chat/Cowork)
 .claude/settings.json  session-start-hook: viser ubehandlede Siri-punkter
 config/                kortregler.md + *.example.json (kopiér til fag.json / planlaegning.json)
-portable/              skabelon til projektinstruktioner (Chat/Projekter/Cowork)
+portable/              skabeloner: projektinstruktioner (Chat/Cowork) og Obsidian-note (obsidian/Emne.md)
 scripts/
   lms_sync.py          LMS → fag/<fag>/kilder/ (kun nye/ændrede, manifest) + filer fra kilder/Manuel/
   lms/                 adaptere: canvas, moodle, brightspace, itslearning + ical (deadlines fra kalender-feed)
@@ -146,6 +160,8 @@ scripts/
   install_planner.sh   kør planlæggeren automatisk hver 30. min (launchd)
   indbakke.py          Påmindelser som indbakke (Siri-diktat)
   billede.py           figur fra citeret PDF-side/PPTX-slide → Anki-kortets Billede-felt
+  noter.py             egne Obsidian-noter: find, opret, læs og supplér (kun i Claudes sektion)
+  opsaet_obsidian.sh   gør fag/ til en Obsidian-vault med skabelon
   studie_mcp.py        MCP-server: sync, deadlines, planlægning, opgaver, indbakke og figurer til Claude Desktop
   desktop_mcp.sh       registrerer studie-, Anki- og NotebookLM-MCP i Claude Desktop
   pak_portable.py      pakker skills + projektinstruktioner (dist/)

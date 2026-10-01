@@ -170,6 +170,47 @@ def indbakke_afslut(ids: list[str]) -> str:
     return koer(SCRIPTS / "indbakke.py", "afslut", *ids, timeout=120)
 
 
+# ---------- egne noter (Obsidian, fag/<Fag>/noter/) ----------
+
+@server.tool(description="Brugerens egne noter pr. fag (Obsidian). '[suppleret]' = Claude har allerede tilføjet et supplement.")
+def noter_liste(fag: str | None = None) -> str:
+    return koer(SCRIPTS / "noter.py", "liste", *(["--fag", fag] if fag else []))
+
+
+@server.tool(description="Opret en ny emne-note fra skabelonen (fx når brugeren skriver 'note paro F4'). Returnerer sti og obsidian://-link.")
+def note_opret(fag: str, emne: str, kilder: list[str] | None = None) -> str:
+    args = [SCRIPTS / "noter.py", "opret", "--fag", fag, "--emne", emne]
+    for k in kilder or []:
+        args += ["--kilde", k]
+    return koer(*args)
+
+
+@server.tool(description="Læs brugerens note om et emne (finder den på delvist navn). Returnerer brugerens egen tekst og "
+                         "Claudes nuværende sektion hver for sig. Bruges til notetjek før kort og ved 'udvid'.")
+def note_laes(fag: str, emne: str) -> str:
+    return koer(SCRIPTS / "noter.py", "laes", "--fag", fag, "--emne", emne)
+
+
+@server.tool(description="Erstat Claudes sektion i brugerens note med markdown (format: se skill'en anki-kort, trin 8). "
+                         "Brugerens egen tekst ændres aldrig. Medtag tidligere indhold, der stadig er relevant.")
+def note_supplement(fag: str, emne: str, markdown: str) -> str:
+    CACHE.mkdir(exist_ok=True)
+    tmp = CACHE / "note_supplement.md"
+    tmp.write_text(markdown)
+    return koer(SCRIPTS / "noter.py", "supplement", "--fag", fag, "--emne", emne, "--fil", tmp)
+
+
+@server.tool(description="Sæt status ('læser', 'læst', 'repeteret') og/eller svag=True/False i notens frontmatter, og få dens obsidian://-link.")
+def note_marker(fag: str, emne: str, status: str | None = None, svag: bool | None = None) -> str:
+    args = [SCRIPTS / "noter.py", "marker", "--fag", fag, "--emne", emne]
+    if status:
+        args += ["--status", status]
+    if svag is not None:
+        args += ["--svag", "ja" if svag else "nej"]
+    ud = koer(*args)
+    return ud + "\n" + koer(SCRIPTS / "noter.py", "link", "--fag", fag, "--emne", emne)
+
+
 # ---------- figurer fra pensum ----------
 
 @server.tool(description="Hent en figur fra pensum til et Anki-kort: side (PDF) eller slide (PPTX) fra en kilde i faget. "

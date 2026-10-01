@@ -46,7 +46,7 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   └── kortregler.md      # bindende regler for Anki-kort
 ├── fag/<fag>/
 │   ├── kilder/            # synk. fra Absalon (+ .manifest.json med fil-id, updated_at, notebooklm_source_id)
-│   ├── noter/             # mine egne noter
+│   ├── noter/             # mine egne noter (Obsidian-vault = fag/; Claude skriver kun i sin markerede sektion)
 │   ├── eksamen/           # eksamenssvar (<emne>.md)
 │   └── fejllog.md         # svage emner fra Anki-statistik
 ├── scripts/
@@ -57,6 +57,7 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   ├── notebook_sync.py   # uploader nye filer til fagets notebook (opretter notebook ved behov)
 │   ├── deadlines.py       # kommende deadlines fra LMS'et (+ evt. kalender-feed ICAL_URL)
 │   ├── indbakke.py        # Påmindelser-indbakke (Siri-diktat)
+│   ├── noter.py           # egne Obsidian-noter: find, opret, læs, supplér (kun Claudes sektion)
 │   ├── billede.py         # figur fra citeret side/slide → Anki (bruges af anki-kort)
 │   ├── tilfoej_bog.py     # lærebog → notebook (sidemarkører, deles ved store bøger)
 │   ├── kalender.py        # planlægger i Apple Kalender (install_planner.sh: hver 30. min)
@@ -80,7 +81,9 @@ Første ord afgør, hvad punktet er; resten er fag, emne, tid og deadline i fri 
 Gamle formuleringer ("har læst …", "skal nå …", "færdig med …") virker stadig som synonymer.
 | Jeg skriver | Du gør |
 |---|---|
-| `læst <fag> <emne>` | Jeg har netop læst emnet → skill `anki-kort`, afgrænset til præcis de kilder, jeg har læst |
+| `læst <fag> <emne>` | Jeg har netop læst emnet → skill `anki-kort`, afgrænset til præcis de kilder, jeg har læst. Har jeg en note (`fag/<fag>/noter/`), tjekkes den mod pensum (✅/➕/⚠️), kortene prioriterer det, jeg manglede, og Claudes sektion i noten opdateres |
+| `note <fag> <emne>` | Opret en emne-note fra skabelonen (`python3 scripts/noter.py opret …`) og åbn den i Obsidian (`open "<obsidian://-link>"`) |
+| `udvid <fag> <emne>` | Læs min note, find sammenhænge til andre fag i pensum (NotebookLM på tværs af notebooks), og opdatér "🔗 Sammenhænge" i Claudes sektion med `[[links]]` til mine andre noter + forslag til nye noter. Tilbyd kort |
 | `kort <fag> <emne>` | Skill `anki-kort`. Tilføjer jeg "direkte", må kortene oprettes uden godkendelse |
 | `opgave <titel> [fag] [tid] [deadline]` | Ny opgave i `planlaegning/opgaver.json` (id, titel, fag, minutter = rest_minutter, deadline, prioritet 1–3, status "aaben"). Estimér tid/prioritet, hvis jeg ikke angiver dem, og fortæl hvad du valgte |
 | `nåede ikke <X>` | Læg de mistede minutter til opgavens `rest_minutter`, og planlæg igen |
@@ -114,6 +117,11 @@ Punkter uden kendt første ord tolkes efter betydning ("har læst …" = `læst`
 
 Python-scripts køres altid med `uv run -q --python 3.12 --with <pakker> scripts/<script>.py`
 (systemets python3 er 3.9).
+
+### Egne noter (Obsidian)
+Vault = `fag/` (åbn mappen som vault i Obsidian). Én note pr. emne i `fag/<fag>/noter/` fra skabelonen.
+Claude skriver **kun** mellem `<!-- claude:start -->` og `<!-- claude:end -->` (via `scripts/noter.py supplement`),
+aldrig i min egen tekst. Kildehierarki: pensum > mine noter > egen viden – mine noter rettes ikke, men suppleres.
 
 ## Regler
 - Hemmeligheder står kun i `.env`. Print dem aldrig, og skriv dem aldrig i andre filer.
