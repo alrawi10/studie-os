@@ -20,7 +20,7 @@ Samme korte ord virker i Claude Code, i Claude Desktop/Cowork og som første ord
 | Du skriver | Hvad der sker |
 |---|---|
 | `status` | Overblik: dagens blokke, åbne opgaver, deadlines og ubehandlede indbakke-punkter |
-| `læst <fag> <emne>` | 8–15 kildebelagte Anki-kort fra præcis det, du har læst (pensum → tabel → **ok** → Anki) |
+| `læst <fag> <emne>` | 8–15 kildebelagte Anki-kort fra præcis det, du har læst (pensum → tabel → **ok** → Anki). Har du importeret andres kort, aktiveres de relevante først |
 | `kort <fag> <emne>` | Kort til et vilkårligt emne (`direkte` = uden godkendelse) |
 | `spørgsmål <emne>` / `forklar …` | Svar ud fra pensum med citater (kildetitel + side/slide) |
 | `eksamen <fag> <spørgsmål>` | Svar i professorniveau med citater; Vancouver-referencer til afleveringer |
@@ -33,6 +33,15 @@ Samme korte ord virker i Claude Code, i Claude Desktop/Cowork og som første ord
 | `figur <fag> <kilde> s. <nr>` | Henter figuren fra den side/slide – til kort om histologi, røntgen, kliniske fotos osv. |
 
 Alle Anki-kort følger [`config/kortregler.md`](config/kortregler.md): ét faktum pr. kort, cloze til definitioner og tal, basic til hvorfor/hvordan, og altid en kildehenvisning. Kort uden belæg i pensum oprettes ikke.
+
+## Kort fra andre studerende
+Har du fået Anki-decks (.apkg) fra medstuderende, kan systemet bruge dem i stedet for at lave alt forfra:
+1. Importér decket i Anki, og tilføj det i `config/delte_decks.json` (fag og mål-deck – se `config/delte_decks.example.json`).
+2. `scripts/delte_kort.py plan` viser, hvad der sker; `udfoer` samler kortene under `<Studie>::<Fag>` (deres kapitler bevares),
+   tagger dem `kilde::delt` og sætter de **nye** kort på pause. Kort, du allerede er i gang med, røres ikke. Intet slettes.
+3. Når du skriver `læst …`, vurderes de importerede kort i de matchende kapitler mod pensum:
+   ✅ aktivér · ⚠️ afviger fra pensum (rettelse foreslås med citat) · 🛠️ bryder kortreglerne (nye kort i stedet) · ❌ ikke læst endnu.
+   Du godkender, og nye kort laves kun til det, de importerede ikke dækker.
 
 ## En almindelig dag
 1. **Morgen:** `status` → dagens læseblokke (📚) og den daglige Anki-blok (🔁) ligger i kalenderen "Studieplan".
@@ -145,6 +154,7 @@ scripts/
   kalender.py          planlægger (Apple Kalender via AppleScript)
   install_planner.sh   kør planlæggeren automatisk hver 30. min (launchd)
   indbakke.py          Påmindelser som indbakke (Siri-diktat)
+  delte_kort.py        importerede decks: saml under <Studie>::<Fag>, pause, aktivér emne for emne
   billede.py           figur fra citeret PDF-side/PPTX-slide → Anki-kortets Billede-felt
   studie_mcp.py        MCP-server: sync, deadlines, planlægning, opgaver, indbakke og figurer til Claude Desktop
   desktop_mcp.sh       registrerer studie-, Anki- og NotebookLM-MCP i Claude Desktop

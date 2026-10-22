@@ -170,6 +170,25 @@ def indbakke_afslut(ids: list[str]) -> str:
     return koer(SCRIPTS / "indbakke.py", "afslut", *ids, timeout=120)
 
 
+# ---------- delte (importerede) Anki-kort ----------
+
+@server.tool(description="Importerede Anki-kort fra andre studerende, der står på pause i et fag (tag kilde::delt). "
+                         "deck = del af kapitel-decknavnet (fx 'Smerte' eller '3.3'), soeg = nøgleord (OR). Returnerer kort til "
+                         "vurdering mod pensum ved 'læst' (se skill'en anki-kort, trin 3a).")
+def delte_kandidater(fag: str, deck: str | None = None, soeg: str | None = None) -> str:
+    args = [SCRIPTS / "delte_kort.py", "kandidater", "--fag", fag]
+    if deck:
+        args += ["--deck", deck]
+    if soeg:
+        args += ["--soeg", soeg]
+    return koer(*args, timeout=300)
+
+
+@server.tool(description="Aktivér (unsuspend) valgte importerede kort efter brugerens ok. Fremskridt bevares; intet slettes.")
+def delte_aktiver(kort_ids: list[int]) -> str:
+    return koer(SCRIPTS / "delte_kort.py", "aktiver", *kort_ids, timeout=120)
+
+
 # ---------- figurer fra pensum ----------
 
 @server.tool(description="Hent en figur fra pensum til et Anki-kort: side (PDF) eller slide (PPTX) fra en kilde i faget. "

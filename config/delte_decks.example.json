@@ -1,0 +1,4 @@
+[
+  {"kilde": "<navn på importeret deck>", "maal": "<Studie>::<Fag>", "fag": "<Fag>", "aktivering": "emne"},
+  {"kilde": "<gamle eksamenssæt>", "maal": "<Studie>::<Fag>::Eksamenssæt", "fag": "<Fag>", "aktivering": "pause"}
+]

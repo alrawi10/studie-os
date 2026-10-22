@@ -16,13 +16,13 @@
 |---|---|---|
 | NotebookLM (`notebook_query`) | Claude Desktop | Brug projektets filer som pensum |
 | Anki (`add_notes`, `find_notes`) | Claude Desktop (Anki åben) | Lever kort som importfil (skill `anki-kort`) |
-| `studie` (sync, deadlines, planlaeg, opgaver, indbakke, billede) | Claude Desktop på min Mac | Sig, at det kræver Desktop-appen eller Claude Code |
+| `studie` (sync, deadlines, planlaeg, opgaver, indbakke, billede, delte kort) | Claude Desktop på min Mac | Sig, at det kræver Desktop-appen eller Claude Code |
 
 ## Hurtigkommandoer
 | Jeg skriver | Du gør |
 |---|---|
 | `status` | Overblik: `planlaeg(skriv=False)` (dagens/morgendagens blokke), `opgaver()` (rest, deadline, forsinkede), `deadlines(7)` og antal punkter i `indbakke()` |
-| `læst <fag> <emne>` | Skill `anki-kort`, afgrænset til præcis det, jeg har læst. Vis tabel → opret ved **ok** |
+| `læst <fag> <emne>` | Skill `anki-kort`, afgrænset til præcis det, jeg har læst. Importerede kort på pause (`delte_kandidater`) vurderes mod pensum og aktiveres med `delte_aktiver` ved ok; nye kort kun til det, de ikke dækker. Vis tabel → opret ved **ok** |
 | `kort <fag> <emne>` (+ `direkte`) | Skill `anki-kort` (med `direkte` uden godkendelse) |
 | `opgave <titel> [fag] [tid] [deadline]` | `opgave_tilfoej` (estimér tid/prioritet, hvis de mangler, og sig hvad du valgte), derefter `plan` |
 | `nåede ikke <X>` | `opgave_opdater(id, laeg_til_minutter=…)`, derefter `plan` |

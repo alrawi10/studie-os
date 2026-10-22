@@ -57,6 +57,7 @@ Hvis NotebookLM ikke dækker spørgsmålet, så sig det, før du svarer fra egen
 │   ├── notebook_sync.py   # uploader nye filer til fagets notebook (opretter notebook ved behov)
 │   ├── deadlines.py       # kommende deadlines fra LMS'et (+ evt. kalender-feed ICAL_URL)
 │   ├── indbakke.py        # Påmindelser-indbakke (Siri-diktat)
+│   ├── delte_kort.py      # importerede decks: saml under Odontologi, aktivér emne for emne
 │   ├── billede.py         # figur fra citeret side/slide → Anki (bruges af anki-kort)
 │   ├── tilfoej_bog.py     # lærebog → notebook (sidemarkører, deles ved store bøger)
 │   ├── kalender.py        # planlægger i Apple Kalender (install_planner.sh: hver 30. min)
@@ -80,7 +81,7 @@ Første ord afgør, hvad punktet er; resten er fag, emne, tid og deadline i fri 
 Gamle formuleringer ("har læst …", "skal nå …", "færdig med …") virker stadig som synonymer.
 | Jeg skriver | Du gør |
 |---|---|
-| `læst <fag> <emne>` | Jeg har netop læst emnet → skill `anki-kort`, afgrænset til præcis de kilder, jeg har læst |
+| `læst <fag> <emne>` | Jeg har netop læst emnet → skill `anki-kort`, afgrænset til præcis de kilder, jeg har læst. Importerede kort (på pause, tag `kilde::delt`) i de matchende kapitel-decks vurderes mod pensum (✅ aktivér / ⚠️ afviger / 🛠️ omformulér / ❌ ikke læst) og aktiveres ved ok; nye kort laves kun til det, de ikke dækker |
 | `kort <fag> <emne>` | Skill `anki-kort`. Tilføjer jeg "direkte", må kortene oprettes uden godkendelse |
 | `opgave <titel> [fag] [tid] [deadline]` | Ny opgave i `planlaegning/opgaver.json` (id, titel, fag, minutter = rest_minutter, deadline, prioritet 1–3, status "aaben"). Estimér tid/prioritet, hvis jeg ikke angiver dem, og fortæl hvad du valgte |
 | `nåede ikke <X>` | Læg de mistede minutter til opgavens `rest_minutter`, og planlæg igen |
@@ -114,6 +115,11 @@ Punkter uden kendt første ord tolkes efter betydning ("har læst …" = `læst`
 
 Python-scripts køres altid med `uv run -q --python 3.12 --with <pakker> scripts/<script>.py`
 (systemets python3 er 3.9).
+
+### Importerede kort fra andre studerende
+Importerede decks er samlet under `Odontologi::<Fag>::<kapitel>` (tag `kilde::delt`, `delt::<oprindelse>`) og står **på pause**,
+indtil emnet er læst – så aktiverer `læst` de relevante (`scripts/delte_kort.py kandidater/aktiver`). Eksamenssæt bliver på pause.
+Nyt importeret deck: tilføj det i `config/delte_decks.json`, og kør `delte_kort.py plan` → vis planen → `udfoer` efter mit ok.
 
 ## Regler
 - Hemmeligheder står kun i `.env`. Print dem aldrig, og skriv dem aldrig i andre filer.

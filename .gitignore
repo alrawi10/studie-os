@@ -12,6 +12,7 @@ kilder/
 planlaegning/
 config/fag.json
 config/planlaegning.json
+config/delte_decks.json
 CLAUDE.md
 CLAUDE.local.md
 .claude/settings.local.json

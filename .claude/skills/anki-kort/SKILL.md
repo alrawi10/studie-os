@@ -28,6 +28,23 @@ Laver kildebelagte Anki-kort og opretter dem i `<Studie>::<Fag>::<Emne>`.
 3. **Tjek for dubletter** (kun med Anki-værktøjer): `find_notes` med `tag:emne::<emne>` og derefter 2–4 centrale
    nøgleord i hele samlingen → `notes_info`. Spring over, hvad der er dækket, og nævn det kort med deck-navn.
    Uden Anki: spørg, om der allerede findes kort om emnet.
+3a. **Delte (importerede) kort** – kun med Anki. Brugerens importerede decks ligger på pause under
+   `<Studie>::<Fag>::<kapitel>` med tagget `kilde::delt` og aktiveres først, når emnet er læst:
+   ```bash
+   uv run -q --python 3.12 --with requests scripts/delte_kort.py kandidater --fag <Fag> --deck "<del af kapitelnavn>" [--soeg "<nøgleord>"]
+   ```
+   (eller `studie.delte_kandidater`). Kapitel-decks følger forelæsningerne – vælg dem, der svarer til det læste.
+   Vurdér **hvert** kort mod pensum fra trin 2:
+   - ✅ **Aktivér** – korrekt og inden for det læste
+   - ⚠️ **Afviger fra pensum** – vis forskellen med citat, og foreslå rettet tekst
+   - 🛠️ **Omformulér/del op** – bryder kortreglerne ("nævn alle …", flere fakta, multiple choice, ja/nej)
+   - ❌ **Ikke læst endnu** – bliver på pause · 🔁 **Dublet** af et aktivt kort – bliver på pause
+   Billedkort (forsiden er kun et billede): se billedet fra Ankis mediemappe
+   (`~/Library/Application Support/Anki2/<profil>/collection.media/<fil>`) før vurdering.
+   Vis resultatet i trin 6 grupperet efter kapitel-deck. Ved **ok**: aktivér ✅ og rettede ⚠️ med
+   `delte_kort.py aktiver <kort-ids>` (rettelser først med `update_note_fields`, PATCH-tilstand, så fremskridt bevares).
+   🛠️-kort: lad originalen stå på pause, og lav i stedet nye kort efter kortreglerne (trin 4).
+   **Nye egne kort (trin 4) laves kun til det, de aktiverede delte kort ikke dækker.**
 4. **Lav kortene** efter kortreglerne: ét faktum pr. kort, cloze til definitioner/tal/sekvenser, basic til
    hvorfor/hvordan og klinik, fagsprog med latinsk/engelsk term i parentes første gang, bagside ≤ ca. 25 ord,
    mekanisme i `Uddybning`, ca. 8–15 kort pr. forelæsning/kapitel.
